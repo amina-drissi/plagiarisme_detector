@@ -1,0 +1,15 @@
+# Copiez ce fichier en "config.properties" à la racine du projet (même dossier que ce fichier)
+# pour surcharger les valeurs par défaut. "config.properties" est ignoré par Git.
+#
+# Alternative pour les identifiants BDD : variables d'environnement DB_URL, DB_USER, DB_PASSWORD.
+
+# --- Base de données ---
+db.url=jdbc:mysql://localhost:3306/plagiarism_db
+db.user=root
+db.password=
+
+# --- Chemins (laisser vide pour la détection automatique) ---
+#upload.dir=uploads
+#results.dir=results
+#python.script=python/plagiarism_detector.py
+#python.executable=python

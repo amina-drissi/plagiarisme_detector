@@ -1,0 +1,11 @@
+# Secrets / configuration locale (point 8 : ne jamais versionner de token)
+/config.properties
+/python/config.properties
+
+# Fichiers générés par les utilisateurs (point 9 : ne pas versionner ce qui grossit)
+/uploads/
+/results/
+/python/result.json
+
+# Build Eclipse
+/build/

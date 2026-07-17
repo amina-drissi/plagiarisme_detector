@@ -1,0 +1,8 @@
+# Copiez ce fichier en "config.properties" (dans ce même dossier) et renseignez vos clés.
+# "config.properties" est ignoré par Git (voir .gitignore) : vos secrets ne seront jamais commités.
+#
+# Alternative : définissez GITHUB_TOKEN et SERPAPI_KEY comme variables d'environnement
+# sur la machine qui exécute Tomcat ; dans ce cas ce fichier n'est pas nécessaire.
+
+GITHUB_TOKEN=
+SERPAPI_KEY=
