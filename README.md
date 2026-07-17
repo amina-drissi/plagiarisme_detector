@@ -1,19 +1,22 @@
-# Détecteur de plagiat
+# Plagiarism Detector
 
-Application Java EE (JSP / Servlets / JDBC / MySQL / Tomcat 9) permettant à un utilisateur
-de soumettre un TP sous forme d'archive ZIP contenant des PDF, puis de lancer une analyse
-de plagiat (comparaison inter-étudiants, recherche GitHub, recherche web) via un script Python.
+> **Academic context:** This project was developed as a **Bachelor's capstone project
+> (Projet de Fin d'Études)** for a Bachelor's degree in **Computer Engineering**.
 
-## Prérequis
+A Java EE application (JSP / Servlets / JDBC / MySQL / Tomcat 9) that lets a user submit
+a lab assignment as a ZIP archive containing PDF files, then run a plagiarism analysis
+(cross-student comparison, GitHub search, web search) via a Python script.
+
+## Prerequisites
 
 - JDK (8+)
 - Apache Tomcat 9
 - MySQL / MariaDB
-- Python 3 avec les dépendances : `pip install requests pymupdf`
+- Python 3 with dependencies: `pip install requests pymupdf`
 
-## 1. Base de données
+## 1. Database
 
-Créer une base `plagiarism_db` avec les tables suivantes :
+Create a `plagiarism_db` database with the following tables:
 
 ```sql
 CREATE DATABASE IF NOT EXISTS plagiarism_db;
@@ -23,7 +26,7 @@ CREATE TABLE users (
     id       INT(11) AUTO_INCREMENT PRIMARY KEY,
     name     VARCHAR(100) NOT NULL,
     email    VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL   -- hash BCrypt, jamais du texte en clair
+    password VARCHAR(255) NOT NULL   -- BCrypt hash, never stored in plain text
 );
 
 CREATE TABLE submissions (
@@ -43,36 +46,36 @@ CREATE TABLE analyses (
 );
 ```
 
-> Note : le fichier `dao/ResultDAO.java` référence une table `similarity_results` qui n'est
-> pas utilisée dans le flux actuel (les résultats sont stockés en JSON dans `results/`,
-> pas en base). Cette classe est du code mort, elle peut être ignorée ou supprimée.
+> Note: `dao/ResultDAO.java` references a `similarity_results` table that is not used
+> in the current flow (analysis results are stored as JSON files under `results/`,
+> not in the database). This class is currently dead code and can be ignored or removed.
 
-## 2. Configuration des chemins (`PLAGIARISM_HOME`)
+## 2. Path configuration (`PLAGIARISM_HOME`)
 
-L'application a besoin de connaître l'emplacement réel du projet sur le disque (pour
-trouver `uploads/`, `results/` et `python/plagiarism_detector.py`), car Eclipse/Tomcat
-déploie l'application dans un dossier temporaire différent du dossier du projet.
+The application needs to know the real location of the project on disk (to find
+`uploads/`, `results/` and `python/plagiarism_detector.py`), since Eclipse/Tomcat
+deploys the application to a temporary folder different from the project folder.
 
-Définir une variable d'environnement (recommandé, survit aux redémarrages) :
+Set an environment variable (recommended, survives restarts):
 
-- **Windows** : Panneau de configuration → Variables d'environnement → Nouvelle variable
-  utilisateur `PLAGIARISM_HOME` = chemin complet du projet (ex. `D:\Dev\detecteur_de_plagiarisme2`)
-  → redémarrer Eclipse.
+- **Windows**: Control Panel → Environment Variables → New user variable
+  `PLAGIARISM_HOME` = full project path (e.g. `D:\Dev\detecteur_de_plagiarisme2`)
+  → restart Eclipse.
 
-- **Ou**, dans Eclipse : Servers → double-clic sur le serveur → *Open launch configuration*
-  → onglet *Arguments* → ajouter dans **VM arguments** :
+- **Or**, in Eclipse: Servers → double-click the server → *Open launch configuration*
+  → *Arguments* tab → add to **VM arguments**:
   ```
   -DPLAGIARISM_HOME="D:\Dev\detecteur_de_plagiarisme2"
   ```
 
-Sans cette variable, `AppConfig` tente de déduire le dossier automatiquement à partir des
-classes compilées, ce qui échoue dans certaines configurations de déploiement Eclipse WTP.
+Without this variable, `AppConfig` tries to auto-detect the project folder from the
+compiled classes location, which can fail under certain Eclipse WTP deployment setups.
 
-## 3. Secrets (GitHub token, SerpAPI, identifiants BDD)
+## 3. Secrets (GitHub token, SerpAPI, DB credentials)
 
-Aucun secret n'est codé en dur dans le code. Deux options, au choix :
+No secret is hardcoded in the source code. Two options, pick one:
 
-**Option A — variables d'environnement**
+**Option A — environment variables**
 ```
 GITHUB_TOKEN=...
 SERPAPI_KEY=...
@@ -81,43 +84,46 @@ DB_USER=root
 DB_PASSWORD=...
 ```
 
-**Option B — fichiers de configuration locaux (non versionnés, voir `.gitignore`)**
-- `config.properties` à la racine du projet (copier `config.properties.example`) :
-  identifiants BDD + chemins.
-- `python/config.properties` (copier `python/config.properties.example`) :
-  `GITHUB_TOKEN` et `SERPAPI_KEY`.
+**Option B — local config files (git-ignored, see `.gitignore`)**
+- `config.properties` at the project root (copy `config.properties.example`):
+  DB credentials + paths.
+- `python/config.properties` (copy `python/config.properties.example`):
+  `GITHUB_TOKEN` and `SERPAPI_KEY`.
 
-Sans configuration, les valeurs par défaut sont : `root` / mot de passe vide /
-`localhost:3306/plagiarism_db`, et pas de token GitHub/SerpAPI (les recherches
-correspondantes sont simplement ignorées avec un message d'avertissement).
+Without any configuration, the defaults are: `root` / empty password /
+`localhost:3306/plagiarism_db`, and no GitHub/SerpAPI token (the corresponding
+searches are simply skipped with a warning message).
 
-## 4. Lancer le projet
+## 4. Running the project
 
-1. Importer le projet dans Eclipse (Dynamic Web Project).
-2. Configurer `PLAGIARISM_HOME` (étape 2).
-3. Démarrer le serveur Tomcat depuis Eclipse.
-4. Ouvrir `http://localhost:8080/<nom-du-projet>/` → redirige vers `auth.jsp`.
+1. Import the project into Eclipse (Dynamic Web Project).
+2. Configure `PLAGIARISM_HOME` (step 2).
+3. Start the Tomcat server from Eclipse.
+4. Open `http://localhost:8080/<project-name>/` → redirects to `auth.jsp`.
 
-## 5. Politique de mot de passe
+## 5. Password policy
 
-À l'inscription, le mot de passe doit contenir au moins 8 caractères, une majuscule,
-une minuscule, un chiffre et un caractère spécial. Les mots de passe sont hachés avec
-BCrypt avant stockage.
+At registration, the password must contain at least 8 characters, one uppercase
+letter, one lowercase letter, one digit, and one special character. Passwords are
+hashed with BCrypt before being stored.
 
-## 6. Structure des résultats
+## 6. Results structure
 
-Chaque analyse produit un fichier indépendant : `results/result_<id_soumission>.json`.
-Un utilisateur ne peut analyser ou consulter que ses propres soumissions.
+Each analysis produces an independent file: `results/result_<submission_id>.json`.
+A user can only analyze or view their own submissions.
 
-## 7. Captures d'écran
+## 7. Screenshots
 
-| Page d'accueil | Inscription | Connexion |
+| Home | Sign up | Sign in |
 |---|---|---|
-| ![Accueil](screenshots/acceuil.png) | ![Inscription](screenshots/sign-up.png) | ![Connexion](screenshots/sign-in.png) |
+| ![Home](screenshots/acceuil.png) | ![Sign up](screenshots/sign-up.png) | ![Sign in](screenshots/sign-in.png) |
 
-| Tableau de bord | Upload | Résultats |
+| Dashboard | Upload | Results |
 |---|---|---|
-| ![Dashboard](screenshots/dashboard.png) | ![Upload](screenshots/upload.png) | ![Résultats](screenshots/result.png) |
+| ![Dashboard](screenshots/dashboard.png) | ![Upload](screenshots/upload.png) | ![Results](screenshots/result.png) |
 
-![Résultats détaillés](screenshots/result2.png)
+![Detailed results](screenshots/result2.png)
 
+## License
+
+This project is licensed under the MIT License.
