@@ -108,3 +108,16 @@ BCrypt avant stockage.
 
 Chaque analyse produit un fichier indépendant : `results/result_<id_soumission>.json`.
 Un utilisateur ne peut analyser ou consulter que ses propres soumissions.
+
+## 7. Captures d'écran
+
+| Page d'accueil | Inscription | Connexion |
+|---|---|---|
+| ![Accueil](screenshots/acceuil.png) | ![Inscription](screenshots/sign-up.png) | ![Connexion](screenshots/sign-in.png) |
+
+| Tableau de bord | Upload | Résultats |
+|---|---|---|
+| ![Dashboard](screenshots/dashboard.png) | ![Upload](screenshots/upload.png) | ![Résultats](screenshots/result.png) |
+
+![Résultats détaillés](screenshots/result2.png)
+
