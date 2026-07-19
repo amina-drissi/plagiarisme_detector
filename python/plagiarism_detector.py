@@ -5,18 +5,6 @@ import requests
 import zipfile
 import re
 
-
-# ============================================================
-# CONFIGURATION
-# ============================================================
-# ✅ Le script ne scanne plus tout le dossier uploads : il reçoit désormais
-#    en arguments le chemin du ZIP à analyser et le chemin du résultat à produire.
-#    Usage : python plagiarism_detector.py <chemin_zip> <chemin_resultat.json>
-#
-# ✅ Le token GitHub et la clé SerpAPI ne sont plus codés en dur : ils sont lus
-#    depuis les variables d'environnement, avec repli sur un fichier local
-#    "config.properties" (non versionné, voir .gitignore) placé à côté de ce script.
-
 def load_secrets() -> dict:
     secrets = {
         "GITHUB_TOKEN": os.environ.get("GITHUB_TOKEN"),
